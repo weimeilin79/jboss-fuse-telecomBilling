@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1408786815183
+Build-Jdk: 1.7.0_60-ea
+Built-By: christina
+Bundle-ManifestVersion: 2
+Bundle-Name: A Camel Blueprint Route
+Bundle-SymbolicName: demoBilling
+Bundle-Version: 1.0.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.blogdemo.demoBilling;version="1.0.0.SNAPSHOT"
+Import-Package: org.apache.commons.dbcp;version="[1.4,2)",org.osgi.servi
+ ce.blueprint;version="[1.0.0,2.0.0)",org.postgresql
+Tool: Bnd-1.50.0

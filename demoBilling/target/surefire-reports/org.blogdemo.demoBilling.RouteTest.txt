@@ -1,0 +1,15 @@
+-------------------------------------------------------------------------------
+Test set: org.blogdemo.demoBilling.RouteTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 23.518 sec <<< FAILURE! - in org.blogdemo.demoBilling.RouteTest
+testRoute(org.blogdemo.demoBilling.RouteTest)  Time elapsed: 23.285 sec  <<< FAILURE!
+java.lang.AssertionError: mock://result Received message count 0, expected at least 1
+	at org.apache.camel.component.mock.MockEndpoint.fail(MockEndpoint.java:1333)
+	at org.apache.camel.component.mock.MockEndpoint.assertTrue(MockEndpoint.java:1321)
+	at org.apache.camel.component.mock.MockEndpoint.doAssertIsSatisfied(MockEndpoint.java:390)
+	at org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied(MockEndpoint.java:362)
+	at org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied(MockEndpoint.java:350)
+	at org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied(MockEndpoint.java:188)
+	at org.apache.camel.test.junit4.CamelTestSupport.assertMockEndpointsSatisfied(CamelTestSupport.java:675)
+	at org.blogdemo.demoBilling.RouteTest.testRoute(RouteTest.java:21)
+

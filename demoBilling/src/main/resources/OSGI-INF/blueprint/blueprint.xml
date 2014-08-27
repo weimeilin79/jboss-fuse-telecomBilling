@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:camel="http://camel.apache.org/schema/blueprint"
+       xsi:schemaLocation="
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+  <bean id="dataGenerator" class="org.blogdemo.demoBilling.DataGenerator" />
+  <bean id="dataConverter" class="org.blogdemo.demoBilling.DataConverter" />
+  <bean id="dataSourcePS" class="org.apache.commons.dbcp.BasicDataSource">
+    	<property name="driverClassName" value="org.postgresql.Driver"/>
+    	<property name="url" value="jdbc:postgresql://127.10.184.2:5432/postgreslab" />
+    	<property name="username" value="adminnn2bf44" />
+    	<property name="password" value="mdgBBumjvsM9" />
+  	</bean>
+      		
+  <camelContext trace="false" id="blueprintContext" xmlns="http://camel.apache.org/schema/blueprint">
+    <route id="presistRoute" customId="true">
+        <from uri="direct:presistDB"/>
+        <setHeader headerName="currentCall">
+            <simple>${body}</simple>
+        </setHeader>
+        <setBody>
+            <simple>SELECT "charge" FROM "PhoneCharge" where "PhoneNo" = '${headers.currentCall.sender}'</simple>
+        </setBody>
+        <to uri="jdbc:dataSourcePS"/>
+        <choice>
+            <when>
+                <simple>${body.size} == 0</simple>
+                <setBody>
+                    <simple>INSERT INTO "PhoneCharge"("PhoneNo", charge)VALUES ('${headers.currentCall.sender}',${headers.currentCall.charge});</simple>
+                </setBody>
+            </when>
+            <otherwise>
+                <bean method="sumup(${body[0][charge]},${headers.currentCall})" ref="dataConverter"/>
+                <setBody>
+                    <simple>UPDATE "PhoneCharge" SET "charge"= ${body.charge} WHERE "PhoneNo"='${body.sender}';</simple>
+                </setBody>
+            </otherwise>
+        </choice>
+        <log message="${body}"/>
+        <to uri="jdbc:dataSourcePS"/>
+    </route>
+    <route id="dbRoute" customId="true">
+        <from uri="file:src/data?delete=true"/>
+        <unmarshal ref="json">
+            <json unmarshalTypeName="java.util.ArrayList" library="Jackson" prettyPrint="true"/>
+        </unmarshal>
+        <bean method="processData" ref="dataConverter"/>
+        <split>
+            <simple>${body}</simple>
+            <choice>
+                <when>
+                    <simple>${body.sameAreaCode}</simple>
+                    <bean method="calculateChargeInSameArea" ref="dataConverter"/>
+                    <to uri="direct:presistDB"/>
+                </when>
+                <otherwise>
+                    <bean method="calculateChargeNormal" ref="dataConverter"/>
+                    <to uri="direct:presistDB"/>
+                </otherwise>
+            </choice>
+        </split>
+    </route>
+    <route id="dataRoute" customId="true">
+        <from uri="timer:foo?period=5000"/>
+        <setBody>
+            <method method="genRandomData" ref="dataGenerator"></method>
+        </setBody>
+        <marshal>
+            <json library="Jackson" prettyPrint="true"/>
+        </marshal>
+        <to uri="file:src/data"/>
+    </route>
+</camelContext>
+
+</blueprint>
